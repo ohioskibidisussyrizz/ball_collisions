@@ -1,9 +1,11 @@
 from random import *
+
 from pygame import *
+
 from numpy import *
+
 from classes import *
 
-# === Constants ===
 DEFAULT_WIDTH, DEFAULT_HEIGHT = 1000, 1000
 DEFAULT_GRAVITY = 0.5
 DEFAULT_POS_X, DEFAULT_POS_Y = 100, 0
@@ -14,8 +16,6 @@ DEFAULT_HZ = 120
 DEFAULT_RADIUS = 25
 DEFAULT_VEL_X, DEFAULT_VEL_Y = 10, 0
 
-
-# === Helper Functions ===
 def random_x():
     return randint(0, DEFAULT_WIDTH)
 
@@ -34,7 +34,6 @@ def random_radius():
 def get_random_color():
     return (randint(0, 255), randint(0, 255), randint(0, 255))
 
-
 def random_ball_array(number_of_balls):
     balls = []
     for i in range(number_of_balls):
@@ -52,8 +51,6 @@ def random_ball_array(number_of_balls):
         balls.append(random_ball)
     return balls
 
-
-# === Collision and Simulation ===
 def horizontal_collision_calc(ball: Ball, screen_width):
     new_pos_x = ball.get_pos_x() + ball.get_vel_x()
     radius = ball.get_radius()
@@ -70,7 +67,6 @@ def horizontal_collision_calc(ball: Ball, screen_width):
     ball.set_pos_x(new_pos_x)
     ball.set_vel_x(new_vel_x)
 
-
 def vertical_collision_calc(ball: Ball, screen_height, gravity):
     new_pos_y = ball.get_pos_y() + ball.get_vel_y()
     new_vel_y = ball.get_vel_y() + gravity
@@ -85,30 +81,29 @@ def vertical_collision_calc(ball: Ball, screen_height, gravity):
     ball.set_pos_y(new_pos_y)
     ball.set_vel_y(new_vel_y)
 
-
 def simulate_bouncing_ball(ball: Ball, width, height, gravity):
     vertical_collision_calc(ball, height, gravity)
     horizontal_collision_calc(ball, width)
 
-
-
-
-
 def check_collision(balls: list[Ball]):
     intervals = []
+
     for ball in balls:
         x_min, x_max = ball.get_pos_x() - ball.get_radius(), ball.get_pos_x() + ball.get_radius()
         y_min, y_max = ball.get_pos_y() - ball.get_radius(), ball.get_pos_y() + ball.get_radius()
         intervals.append([x_min, x_max, y_min, y_max, ball])
     sorted_intervals = sorted(intervals, key=lambda interval: interval[0])
     collisions = []
+
     for i in range(len(sorted_intervals)):
         current = sorted_intervals[i]
         for j in range(i + 1, len(sorted_intervals)):
             other = sorted_intervals[j]
             if (current[0] <= other[1] and current[1] >= other[0]) and (current[2] <= other[3] and current[3] >= other[2]):
                 collisions.append([current[4], other[4]])
+
     return collisions
+
 def collision_pair(ball1: Ball, ball2: Ball):
     epsilon = 1e-6
     normal_vector = array([ball1.get_pos_x() - ball2.get_pos_x(), ball1.get_pos_y() - ball2.get_pos_y()])
@@ -121,6 +116,7 @@ def collision_pair(ball1: Ball, ball2: Ball):
 
     rel_vel = vel1 - vel2
     vel_along_normal = dot(rel_vel, unit_normal)
+
     if distance < ball1.get_radius() + ball2.get_radius() and vel_along_normal < 0:
         v1n, v1t = dot(vel1, unit_normal), dot(vel1, unit_tangent)
         v2n, v2t = dot(vel2, unit_normal), dot(vel2, unit_tangent)
@@ -158,7 +154,6 @@ def start(balls: list[Ball], width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, gravity
         colliding_pairs = check_collision(balls)
         for pair in colliding_pairs:
             collision_pair(pair[0], pair[1])
-
 
         for ball in balls:
             draw.circle(screen, ball.get_color(), (ball.get_pos_x(), ball.get_pos_y()), ball.get_radius(), 0)
