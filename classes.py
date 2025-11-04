@@ -47,3 +47,4 @@ class Ball:
         self.vel = vel
     def get_vel(self):
         return self.vel
+
